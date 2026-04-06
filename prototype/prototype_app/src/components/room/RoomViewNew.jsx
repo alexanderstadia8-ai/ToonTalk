@@ -7,10 +7,12 @@ import { useChat } from "../../hooks/useChat";
 const SCALE      = 0.22;
 const ANCHOR_X   = 50;
 const ANCHOR_Y   = 180;
-const MAX_SPEED  = 0.78;
-const SLOW_SPEED = 0.62;
+const MAX_SPEED  = 2.0;  // velocità normale aumentata
+const SLOW_SPEED = 1.3;  // velocità rallentamento vicino al target
 const STOP_DIST  = 1.5;
-const STEP_DIST  = 28;
+const STEP_DIST  = 12;
+const PLAYER_TIMEOUT_MS = 5000; // disconnetti se nessun aggiornamento per 5 secondi
+const ANIMATION_FRAME_INTERVAL = 40; // ms per cambiare frame animazione (più veloce: 6 frame = 240ms ciclo completo)
 
 export default function RoomViewNew({ user }) {
   const roomRef = useRef(null);
@@ -28,7 +30,7 @@ export default function RoomViewNew({ user }) {
   const [players, setPlayers] = useState({});
   const onPlayersChange = useCallback((p) => setPlayers(p), []);
 
-  const { updatePosition } = useMultiplayerRoom(user, "lobby", onPlayersChange);
+  const { updatePosition } = useMultiplayerRoom(user, "lobby", onPlayersChange, PLAYER_TIMEOUT_MS);
   const { messages, sendMessage } = useChat(user, "lobby");
 
   /* ── Pausa quando il tab non è visibile ── */
@@ -46,8 +48,15 @@ export default function RoomViewNew({ user }) {
   useEffect(() => {
     if (!pageVisible) return;
     let frameId;
+    let lastAnimTime = 0;
 
-    const animate = () => {
+    const animate = (timestamp) => {
+      // Gestione animazione: cambia frame solo ogni ANIMATION_FRAME_INTERVAL ms
+      if (walking && timestamp - lastAnimTime >= ANIMATION_FRAME_INTERVAL) {
+        setStepPhase((p) => p + 1);
+        lastAnimTime = timestamp;
+      }
+
       setPosition((prev) => {
         const dx   = target.x - prev.x;
         const dy   = target.y - prev.y;
@@ -68,10 +77,8 @@ export default function RoomViewNew({ user }) {
         };
 
         walkedRef.current += Math.sqrt((next.x - prev.x) ** 2 + (next.y - prev.y) ** 2);
-        if (walkedRef.current >= STEP_DIST) {
-          walkedRef.current = 0;
-          setStepPhase((p) => p + 1);
-        }
+        // Il cambio di fase dell'animazione è gestito sopra nel timer separato
+        // Qui teniamo traccia della distanza percorsa per coerenza
 
         updatePosition(next.x, next.y, facing, true);
         return next;
@@ -82,7 +89,7 @@ export default function RoomViewNew({ user }) {
 
     frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
-  }, [target, facing, pageVisible, updatePosition]);
+  }, [target, facing, walking, pageVisible, updatePosition]);
 
   /* ── Click → muovi verso quel punto ── */
   function handleClick(e) {
