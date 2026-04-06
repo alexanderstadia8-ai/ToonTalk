@@ -36,6 +36,7 @@ export default function AvatarRenderer({
   const width = 512 * scale;
   const height = 1024 * scale;
 
+  // Calcola il frame corrente basato su stepPhase
   const currentFrameFolder = walking
     ? walkFrames[stepPhase % walkFrames.length]
     : "idle";

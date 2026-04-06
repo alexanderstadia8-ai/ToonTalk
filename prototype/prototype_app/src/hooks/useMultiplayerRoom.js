@@ -13,9 +13,10 @@ const THROTTLE_MS = 80; // scrivi su Firestore max ogni 80ms
  * - Registra il giocatore locale quando monta
  * - Rimuove quando smonta (o chiude il tab)
  * - Ascolta tutti i giocatori in tempo reale
+ * - Disconnette automaticamente i giocatori inattivi (nessun heartbeat per timeoutMs)
  * - Ritorna { players, updatePosition }
  */
-export function useMultiplayerRoom(user, roomId = "lobby", onPlayersChange) {
+export function useMultiplayerRoom(user, roomId = "lobby", onPlayersChange, timeoutMs = 5000) {
   const lastWriteRef = useRef(0);
   const pendingRef   = useRef(null);
   const playerDocRef = useRef(null);
@@ -51,23 +52,31 @@ export function useMultiplayerRoom(user, roomId = "lobby", onPlayersChange) {
     };
   }, [user, roomId]);
 
-  // Ascolta tutti i giocatori nella stanza in tempo reale
+  // Ascolta tutti i giocatori nella stanza in tempo reale e disconnette quelli inattivi
   useEffect(() => {
     if (!user) return;
     const playersCol = collection(db, "rooms", roomId, "players");
 
     const unsub = onSnapshot(playersCol, (snap) => {
       const players = {};
+      const now = Date.now();
       snap.forEach((d) => {
-        players[d.id] = d.data();
+        const data = d.data();
+        const lastUpdate = data.lastUpdate || data.joinedAt?.toDate()?.getTime() || 0;
+        // Se il giocatore non aggiorna da più di timeoutMs, lo rimuovo (tranne me stesso)
+        if (d.id !== user.uid && now - lastUpdate > timeoutMs) {
+          deleteDoc(d.ref);
+          return;
+        }
+        players[d.id] = data;
       });
       onPlayersChange(players);
     });
 
     return unsub;
-  }, [user, roomId, onPlayersChange]);
+  }, [user, roomId, onPlayersChange, timeoutMs]);
 
-  // Aggiorna posizione con throttle
+  // Aggiorna posizione con throttle e heartbeat
   const updatePosition = useCallback((x, y, facing, walking) => {
     if (!playerDocRef.current) return;
 
@@ -77,7 +86,7 @@ export function useMultiplayerRoom(user, roomId = "lobby", onPlayersChange) {
     const write = () => {
       lastWriteRef.current = Date.now();
       pendingRef.current = null;
-      setDoc(playerDocRef.current, { x, y, facing, walking }, { merge: true });
+      setDoc(playerDocRef.current, { x, y, facing, walking, lastUpdate: now }, { merge: true });
     };
 
     if (timeSinceLast >= THROTTLE_MS) {
