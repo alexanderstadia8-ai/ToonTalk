@@ -7,12 +7,12 @@ import { useChat } from "../../hooks/useChat";
 const SCALE      = 0.22;
 const ANCHOR_X   = 50;
 const ANCHOR_Y   = 180;
-const MAX_SPEED  = 2.8;
-const SLOW_SPEED = 1.8;
+const MAX_SPEED  = 1.4;  // dimezzato da 2.8
+const SLOW_SPEED = 0.9;  // dimezzato da 1.8
 const STOP_DIST  = 1.5;
 const STEP_DIST  = 12;
 const PLAYER_TIMEOUT_MS = 5000; // disconnetti se nessun aggiornamento per 5 secondi
-const ANIMATION_FRAME_INTERVAL = 80; // ms per cambiare frame animazione (più fluido)
+const ANIMATION_FRAME_INTERVAL = 60; // ms per cambiare frame animazione (più veloce e fluido)
 
 export default function RoomViewNew({ user }) {
   const roomRef = useRef(null);
