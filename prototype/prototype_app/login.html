@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ToonTalk – Login</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    overflow: hidden;
+    font-family: "Segoe UI", Arial, sans-serif;
+    position: relative;
+  }
+
+  /* cartoon dot wallpaper */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, #f0dfc0 1.5px, transparent 1.5px);
+    background-size: 30px 30px;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Logo ───────────────────────────────────── */
+  .logo-wrap {
+    position: relative; z-index: 1;
+    animation: logoBounce 2.6s ease-in-out infinite;
+    transform-origin: center bottom;
+  }
+  .logo-wrap img {
+    width: clamp(280px, 52vw, 560px);
+    display: block;
+    /* remove the black background from the PNG */
+    mix-blend-mode: multiply;
+    filter: drop-shadow(0 8px 18px rgba(180,60,0,.35));
+  }
+
+  @keyframes logoBounce {
+    0%   { transform: scale(1.00) rotate(-1.2deg); }
+    20%  { transform: scale(1.09) rotate( 1.0deg); }
+    38%  { transform: scale(0.95) rotate(-0.5deg); }
+    56%  { transform: scale(1.05) rotate( 0.7deg); }
+    76%  { transform: scale(0.98) rotate(-0.3deg); }
+    100% { transform: scale(1.00) rotate(-1.2deg); }
+  }
+
+  /* ── Panel ──────────────────────────────────── */
+  .panel {
+    position: relative; z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: clamp(300px, 80vw, 420px);
+  }
+
+  /* ── Mode buttons ───────────────────────────── */
+  .mode-btns {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .mode-btn {
+    flex: 1;
+    position: relative;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    opacity: 0.52;
+    filter: grayscale(28%);
+    /* bottoni leggermente più alti */
+    transform: scaleY(1.55);
+    transform-origin: center;
+    transition: opacity .2s, filter .2s, transform .12s;
+  }
+  .mode-btn img {
+    width: 100%;
+    display: block;
+    border-radius: 50px;
+    box-shadow: 0 5px 0 rgba(0,0,0,.22);
+  }
+  .mode-btn.active {
+    opacity: 1;
+    filter: none;
+    transform: scaleY(1.55) scale(1.04);
+  }
+  .mode-btn:hover:not(.active) {
+    opacity: 0.80;
+    filter: grayscale(0%);
+    transform: scaleY(1.55) scale(1.02);
+  }
+
+  /* ── Input field (user_box as background) ────── */
+  .fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin-top: 10px; /* spazio per i bottoni scalati */
+  }
+
+  .field-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  .field-wrap img.box-bg {
+    width: 100%;
+    display: block;
+    border-radius: 50px;
+    /* The image already IS the styled box */
+  }
+
+  .field-wrap input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0 28px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #2a1a00;
+    border-radius: 50px;
+    transition: box-shadow .2s;
+  }
+  .field-wrap input::placeholder { color: #b89040; font-weight: 500; }
+  .field-wrap input:focus {
+    box-shadow: 0 0 0 3px rgba(255,153,0,.45);
+  }
+
+  /* slide-in for the 3rd field */
+  .field-extra {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height .35s ease, opacity .28s ease;
+  }
+  .field-extra.visible { max-height: 120px; opacity: 1; }
+
+  /* ── Error ──────────────────────────────────── */
+  .error {
+    display: none;
+    color: #cc0000;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    background: rgba(255,220,220,.9);
+    border: 2px solid #ffaaaa;
+    border-radius: 14px;
+    padding: 8px 18px;
+    width: 100%;
+  }
+  .error.visible { display: block; }
+
+  /* shake on error */
+  .panel.shake { animation: shake .45s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-9px); }
+    40%      { transform: translateX( 9px); }
+    60%      { transform: translateX(-6px); }
+    80%      { transform: translateX( 6px); }
+  }
+
+  /* ── OK button ──────────────────────────────── */
+  .ok-wrap {
+    cursor: pointer;
+    background: none; border: none; padding: 0;
+    transition: transform .1s, filter .15s;
+  }
+  .ok-wrap img {
+    display: block;
+    width: clamp(100px, 26vw, 160px);
+    filter: drop-shadow(0 5px 0 rgba(0,0,0,.30));
+  }
+  .ok-wrap:hover  { transform: translateY(-2px); filter: brightness(1.06); }
+  .ok-wrap:active { transform: translateY(3px);  filter: brightness(0.95); }
+
+  /* ── Footer ─────────────────────────────────── */
+  .footer {
+    position: relative; z-index: 1;
+    color: #d4a060; font-size: 12px;
+    font-weight: 600; letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Logo animato -->
+<div class="logo-wrap">
+  <img src="public/assets/ui/brand/logo.png" alt="ToonTalk" />
+</div>
+
+<!-- Pannello login -->
+<div class="panel" id="panel">
+
+  <!-- Bottoni modalità -->
+  <div class="mode-btns">
+    <button class="mode-btn active" id="btn-login" onclick="setMode('login')">
+      <img src="public/assets/ui/auth/btn_login.png" alt="Login" />
+    </button>
+    <button class="mode-btn" id="btn-register" onclick="setMode('register')">
+      <img src="public/assets/ui/auth/btn_register.png" alt="Registrazione" />
+    </button>
+  </div>
+
+  <!-- Campi input -->
+  <div class="fields">
+    <!-- User ID -->
+    <div class="field-wrap">
+      <img class="box-bg" src="public/assets/ui/auth/input_field.png" alt="" />
+      <input id="userId" type="text" placeholder="User ID..." />
+    </div>
+
+    <!-- Password -->
+    <div class="field-wrap">
+      <img class="box-bg" src="public/assets/ui/auth/input_field.png" alt="" />
+      <input id="password" type="password" placeholder="Password..." />
+    </div>
+
+    <!-- Conferma password (solo registrazione) -->
+    <div class="field-extra" id="confirmWrap">
+      <div class="field-wrap">
+        <img class="box-bg" src="public/assets/ui/auth/input_field.png" alt="" />
+        <input id="confirm" type="password" placeholder="Conferma password..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- Errore -->
+  <p class="error" id="errorMsg"></p>
+
+  <!-- Bottone OK -->
+  <button class="ok-wrap" onclick="handleOk()">
+    <img src="public/assets/ui/auth/btn_ok.png" alt="OK" />
+  </button>
+
+</div>
+
+<p class="footer">© 2026 ToonTalk</p>
+
+<script>
+  let mode = "login";
+
+  function setMode(m) {
+    mode = m;
+    document.getElementById("btn-login").classList.toggle("active",    m === "login");
+    document.getElementById("btn-register").classList.toggle("active", m === "register");
+    document.getElementById("confirmWrap").classList.toggle("visible", m === "register");
+    clearError();
+    document.getElementById("password").value = "";
+    document.getElementById("confirm").value  = "";
+  }
+
+  function showError(msg) {
+    const el = document.getElementById("errorMsg");
+    el.textContent = "⚠️ " + msg;
+    el.classList.add("visible");
+    const panel = document.getElementById("panel");
+    panel.classList.remove("shake");
+    void panel.offsetWidth;
+    panel.classList.add("shake");
+    panel.addEventListener("animationend", () => panel.classList.remove("shake"), { once: true });
+  }
+
+  function clearError() {
+    const el = document.getElementById("errorMsg");
+    el.textContent = "";
+    el.classList.remove("visible");
+  }
+
+  function handleOk() {
+    clearError();
+    const uid  = document.getElementById("userId").value.trim();
+    const pwd  = document.getElementById("password").value;
+    const conf = document.getElementById("confirm").value;
+
+    if (!uid)  { showError("Inserisci un User ID!");    return; }
+    if (!pwd)  { showError("Inserisci la Password!");   return; }
+    if (mode === "register" && pwd !== conf) {
+      showError("Le password non coincidono!"); return;
+    }
+
+    // ─── Successo → collegati alla chat ─────────────────
+    alert((mode === "login" ? "✅ Bentornato, " : "🎉 Registrato! Benvenuto, ") + uid + "!");
+  }
+
+  // Enter su qualsiasi campo → OK
+  document.querySelectorAll("input").forEach(inp =>
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") handleOk(); })
+  );
+</script>
+</body>
+</html>

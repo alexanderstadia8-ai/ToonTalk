@@ -1,0 +1,95 @@
+ToonTalk/
+  prototype/
+    public/
+      assets/
+        branding/
+          logo-main.png
+          logo-small.png
+          splash.png
+
+        avatar/
+          man/
+            base/
+              side/
+              up/
+              down/
+            clothes/
+              tops/
+              bottoms/
+              shoes/
+              hair/
+              accessories/
+
+          woman/
+            base/
+              side/
+              up/
+              down/
+            clothes/
+              tops/
+              bottoms/
+              shoes/
+              hair/
+              accessories/
+
+        dressing-room/
+          dressing-room-bg.jpg
+          mirror-frame.png
+          wardrobe-panel.png
+
+        map/
+          world-map.png
+          map-hotspots.json
+
+        rooms/
+          room_001_lobby/
+            background.png
+            foreground.png
+            walkable-mask.png
+            metadata.json
+            hotspots.json
+
+          room_002_cafe/
+            background.png
+            foreground.png
+            walkable-mask.png
+            metadata.json
+            hotspots.json
+
+        ui/
+          auth/
+            login-bg.png
+            register-bg.png
+            logo.png
+
+          chrome/
+            app-frame.png
+            topbar.png
+            sidebar-left.png
+            sidebar-right.png
+            window-frame.png
+
+          chat/
+            public-panel.png
+            private-panel.png
+            input-bg.png
+            bubble-public.png
+            bubble-private.png
+
+          buttons/
+            btn-primary.png
+            btn-secondary.png
+            btn-send.png
+            btn-close.png
+
+          icons/
+            icon-home.png
+            icon-map.png
+            icon-room.png
+            icon-avatar.png
+            icon-chat.png
+            icon-dm.png
+            icon-friends.png
+            icon-settings.png
+            badge-admin.png
+            badge-moderator.png

@@ -1,0 +1,31 @@
+// Import the functions you need from the SDKs you need
+
+import { initializeApp } from "firebase/app";
+
+// TODO: Add SDKs for Firebase products that you want to use
+
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+
+// Your web app's Firebase configuration
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyBNMW39IBCvg94lQ4wfXvF7W62cX8nzoR8",
+
+  authDomain: "toontalk-8f5f7.firebaseapp.com",
+
+  projectId: "toontalk-8f5f7",
+
+  storageBucket: "toontalk-8f5f7.firebasestorage.app",
+
+  messagingSenderId: "207905698889",
+
+  appId: "1:207905698889:web:6a302ab14f87ca53e77b98"
+
+};
+
+
+// Initialize Firebase
+
+const app = initializeApp(firebaseConfig);
